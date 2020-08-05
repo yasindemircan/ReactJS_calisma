@@ -1,65 +1,82 @@
 import React, { Component } from 'react'
-import posed from 'react-pose';
 import UserConsumer from "../context";
 import Axios from 'axios';
 
-const Animation = posed.div({
-    visiable:{
-        opacity:1,
-        applyAtStart:{display:"block"}    
-    },
-    hidden:{
-        opacity:0,
-        applyAtEnd:{
-            display:"none"
-        }
-    }
-});
-class AddUser extends Component {
+
+class UpdateUser extends Component {
     state={
-        visiable : true,
+       
         name: "",
         department: "",
         salary:"",
+        error: false,
     }
-    changeVisibility =(e)=>{
-        this.setState({visiable: !this.state.visiable})
+    validateForm =()=>{
+        const {name,salary,department} =this.state;
+        if(name ==="" || salary ==="" || department ===""){
+            return false;
+        }
+        return true;
     }
     changeInput =(e) => {
         this.setState({
             [e.target.name]: e.target.value
         })
     }
-   addUser =async (dispatch,e)=>{
+
+    componentDidMount =async ()=> {
+       const{id} = this.props.match.params;
+        const response = await Axios.get(`http://localhost:3005/users/${id}`);
+        const{name,salary,department} =response.data;
+        this.setState({
+            name,
+            salary,
+            department,
+        })
+    }
+    
+    UpdateUser =async (dispatch,e)=>{
        e.preventDefault();
-       const{name,department,salary} = this.state;
-       const newUser={
-         
-           name:name,
-           salary:salary,
-           department:department,
-       }
-      const response = await Axios.post("http://localhost:3005/users",newUser)
-       dispatch({type: "ADD_USER",payload:response.data});
-       
+      //update user
+      const {name,salary,department}= this.state;
+      const{id} = this.props.match.params;
+        const updateUser ={
+            name,
+            salary,
+            department,
+        };
+        if(!this.validateForm()){
+            this.setState({
+              error: true,  
+            })
+            return;
+        }
+        const response = await Axios.put(`http://localhost:3005/users/${id}`,updateUser);
+        dispatch({type: "UPDATE_USER",payload:response.data});
+        this.props.history.push("/"); //Redirect
    }
     render() {
-        const{visiable,name,salary,department}=this.state;
+        const{name,salary,department,error}=this.state;
      return <UserConsumer>
         {
             value =>{
                 const {dispatch} =value;
                 return (
             <div className="col-md-8 mb-4">
-            <button onClick={this.changeVisibility} className="btn btn-dark btn-block mb-2">{visiable ? "Hide Form":"Show Form"} </button>
-               <Animation pose={visiable ? "visiable":"hidden"}> 
                 <div className="card">
                 <div className="card-header">
                 <h4>
-                    Add User Form
+                    Update User Form
                 </h4>
+                </div>
+                {
+                    error ?
+                    <div className="alert alert-danger">
+                        Lütfen Bilgilerinizi Kontrol Edin.
+                    </div>:null
+                }
                 <div className="card-body">
-                <form onSubmit={this.addUser.bind(this,dispatch)}>
+                <form onSubmit={this.UpdateUser.bind(this,dispatch)}>
                     <div className="form-group">
                         <label htmlFor ="name">Name</label>
                         <input 
@@ -96,12 +113,12 @@ class AddUser extends Component {
                         onChange={this.changeInput}     
                         />
                     </div>
-                    <button className="btn btn-danger btn-block" type="submit"> Add User </button>
+                    <button className="btn btn-danger btn-block" type="submit"> Update User </button>
                 </form>
                 </div>
-                </div>
+                
 
-                </div> </Animation>
+                </div> 
             </div>
         )
 
@@ -114,4 +131,4 @@ class AddUser extends Component {
        
     }
 }
-export default AddUser;
+export default UpdateUser;

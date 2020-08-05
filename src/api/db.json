@@ -1,10 +1,10 @@
 {
   "users": [
     {
-      "id": "1",
       "name": "Yasin Demircan",
-      "salary": "6000",
-      "department": "Bilişim"
+      "salary": "9000",
+      "department": "Bilişim",
+      "id": "1"
     },
     {
       "id": "2",
@@ -13,10 +13,10 @@
       "department": "Muhasebe"
     },
     {
-      "id": "3",
       "name": "Ali Kaya",
-      "salary": "7000",
-      "department": "İnsan Kaynakları"
+      "salary": "8000",
+      "department": "İnsan Kaynakları",
+      "id": "3"
     },
     {
       "name": "Mustafa Ali",
